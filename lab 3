@@ -1,0 +1,120 @@
+//proga lab 3 
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+class Sentence
+{
+    private List<string> words;
+
+    public Sentence(string sentence)
+    {
+        words = sentence.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
+
+    public void AddWord(string word)
+    {
+        words.Add(word);
+    }
+
+    public void RemoveWord(string word)
+    {
+        words.Remove(word);
+    }
+
+    public void InsertWord(int index, string word)
+    {
+        if (index >= 0 && index <= words.Count)
+            words.Insert(index, word);
+    }
+
+    public int LetterCount()
+    {
+        return words.Sum(w => w.Length);
+    }
+
+    public int WordCount()
+    {
+        return words.Count;
+    }
+
+    public string LongestWord()
+    {
+        return words.OrderByDescending(w => w.Length).FirstOrDefault() ?? "";
+    }
+
+    public string ShortestWord()
+    {
+        return words.OrderBy(w => w.Length).FirstOrDefault() ?? "";
+    }
+
+    public bool ContainsWord(string word)
+    {
+        return words.Contains(word);
+    }
+
+    public string GetWordAt(int index)
+    {
+        return (index >= 0 && index < words.Count) ? words[index] : "";
+    }
+
+    public bool ESentence(Sentence other)
+    {
+        return string.Join(" ", words) == string.Join(" ", other.words);
+    }
+
+    public override string ToString()
+    {
+        return string.Join(" ", words);
+    }
+
+// 2 завд
+    public void SaveToJson(string filePath)
+    {
+        string jsonString = JsonSerializer.Serialize(words);
+        File.WriteAllText(filePath, jsonString);
+    }
+
+    public static Sentence LoadFromJson(string filePath)
+    {
+        string jsonString = File.ReadAllText(filePath);
+        List<string> words = JsonSerializer.Deserialize<List<string>>(jsonString) ?? new List<string>();
+        return new Sentence(string.Join(" ", words));
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Sentence sentence1 = new Sentence("сонце світить яскраво");
+        Console.WriteLine("речення: " + sentence1);
+        
+        sentence1.AddWord("сьогодні");
+        Console.WriteLine("додавання слова: " + sentence1);
+        
+        sentence1.RemoveWord("яскраво");
+        Console.WriteLine("видалення слова: " + sentence1);
+        
+        sentence1.InsertWord(0, "дуже");
+        Console.WriteLine("вставка слова: " + sentence1);
+        
+        Console.WriteLine("кількість літер: " + sentence1.LetterCount());
+        Console.WriteLine("кількість слів: " + sentence1.WordCount());
+        Console.WriteLine("найдовше слово: " + sentence1.LongestWord());
+        Console.WriteLine("найкоротше слово: " + sentence1.ShortestWord());
+        Console.WriteLine("чи містить слово 'сонце': " + sentence1.ContainsWord("сонце"));
+        Console.WriteLine("слово під номером 2: " + sentence1.GetWordAt(2));
+
+        Sentence sentence2 = new Sentence("сонце не світить");
+        Console.WriteLine("чи рівні два речення: " + sentence1.ESentence(sentence2));
+        
+        sentence1.SaveToJson("sentence.json");
+        Console.WriteLine("речення збережено");
+        
+        Sentence loadedSentence = Sentence.LoadFromJson("sentence.json");
+        Console.WriteLine("завантажене реч: " + loadedSentence);
+    }
+}
