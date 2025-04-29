@@ -1,0 +1,263 @@
+//lab 4 zavd 1
+using System;
+using System.Collections.Generic;
+
+abstract class Odyah {
+    public string Type { get; set; }
+
+    public abstract void Odyagtys(); 
+
+    public virtual void Vybraty() {
+        Console.WriteLine($"вибрано одяг типу: {Type}");
+    }
+}
+
+class Kurtka : Odyah {
+    public override void Odyagtys() {
+        Console.WriteLine("одягаю куртку..");
+    }
+
+    public override bool Equals(object obj) {
+        if (obj is Kurtka k)
+            return Type == k.Type;
+        return false;
+    }
+
+    public override int GetHashCode() {
+        return Type.GetHashCode();
+    }
+
+    public override string ToString() {
+        return $"куртка типу: {Type}";
+    }
+}
+
+class Sorochka : Odyah {
+    public override void Odyagtys() {
+        Console.WriteLine("одягаю сорочку..");
+    }
+
+    public override bool Equals(object obj) {
+        if (obj is Sorochka s)
+            return Type == s.Type;
+        return false;
+    }
+
+    public override int GetHashCode() {
+        return Type.GetHashCode();
+    }
+
+    public override string ToString() {
+        return $"сорочка типу: {Type}";
+    }
+}
+
+class Shtani : Odyah {
+    public override void Odyagtys() {
+        Console.WriteLine("одягаю штани..");
+    }
+
+    public override bool Equals(object obj) {
+        if (obj is Shtani h)
+            return Type == h.Type;
+        return false;
+    }
+
+    public override int GetHashCode() {
+        return Type.GetHashCode();
+    }
+
+    public override string ToString() {
+        return $"штани типу: {Type}";
+    }
+}
+
+class Vzutia : Odyah {
+    public override void Odyagtys() {
+        Console.WriteLine("взуваю взуття..");
+    }
+
+    public override bool Equals(object obj) {
+        if (obj is Vzutia v)
+            return Type == v.Type;
+        return false;
+    }
+
+    public override int GetHashCode() {
+        return Type.GetHashCode();
+    }
+
+    public override string ToString() {
+        return $"взуття типу: {Type}";
+    }
+}
+
+class Program {
+    static void Main() {
+        Kurtka kurtka = new Kurtka { Type = "зимова" };
+        Sorochka sorochka = new Sorochka { Type = "біла" };
+        Shtani shtani = new Shtani { Type = "джинси" };
+        Vzutia vzutia = new Vzutia { Type = "туфлі" };
+
+        List<Odyah> odyahSet = new List<Odyah> { vzutia, shtani, sorochka, kurtka };
+
+        Console.WriteLine("одягаюсь:");
+        foreach (Odyah item in odyahSet) {
+            item.Odyagtys();
+        }
+
+        Console.WriteLine("\nвибір одягу:");
+        foreach (Odyah item in odyahSet) {
+            item.Vybraty();
+        }
+    }
+}
+
+
+//zavd 2
+
+using SportsShop.Models;
+using SportsShop.Utils;
+using System.Text.Json;
+
+class Program
+{
+    static void Main()
+    {
+        var inventory = InventoryLoader.Load("/Users/a1/Desktop/SportsShop/data/inventory.json");
+
+        Console.WriteLine("--- Меню ---");
+        Console.WriteLine("1. усі товари\n2. сортувати по типу\n3. сортувати по вартості\n4. сортувати по сезону\n5. пошук харчових добавок по ціні");
+        Console.Write("вибір: ");
+        var choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                InventoryHelper.Print(inventory);
+                break;
+            case "2":
+                InventoryHelper.SortByType(inventory);
+                break;
+            case "3":
+                InventoryHelper.SortByPrice(inventory);
+                break;
+            case "4":
+                InventoryHelper.SortBySeason(inventory);
+                break;
+            case "5":
+                Console.Write("мін. ціна: ");
+                double min = Convert.ToDouble(Console.ReadLine());
+                Console.Write("макс. ціна: ");
+                double max = Convert.ToDouble(Console.ReadLine());
+                InventoryHelper.FindSupplementsInRange(inventory, min, max);
+                break;
+        }
+    }
+}
+
+
+namespace SportsShop.Models
+{
+    public class Product
+    {
+        public string Name { get; set; }
+        public double Price { get; set; }
+        public string ProductType { get; set; }
+
+        public virtual void Display() =>
+            Console.WriteLine($"{Name} - {ProductType} - {Price} грн");
+    }
+}
+
+
+namespace SportsShop.Models
+{
+    public class Equipment : Product
+    {
+        public string Season { get; set; } 
+
+        public override void Display() =>
+            Console.WriteLine($"{Name} (обладнання, {Season}) - {Price} грн");
+    }
+}
+
+
+namespace SportsShop.Models
+{
+    public class Dobavki : Product
+    {
+        public string Flavor { get; set; }
+        public string Purpose { get; set; }
+
+        public override void Display() =>
+            Console.WriteLine($"{Name} (добавка, {Flavor}, {Purpose}) - {Price} грн");
+    }
+}
+
+
+namespace SportsShop.Utils
+{
+    public static class InventoryHelper
+    {
+        public static void Print(List<Product> list)
+        {
+            foreach (var item in list)
+                item.Display();
+        }
+
+        public static void SortByType(List<Product> list)
+        {
+            var sorted = list.OrderBy(p => p.ProductType).ToList();
+            Print(sorted);
+        }
+
+        public static void SortByPrice(List<Product> list)
+        {
+            var sorted = list.OrderBy(p => p.Price).ToList();
+            Print(sorted);
+        }
+
+        public static void SortBySeason(List<Product> list)
+        {
+            var seasonal = list.OfType<Equipment>().OrderBy(e => e.Season);
+            foreach (var item in seasonal)
+                item.Display();
+        }
+
+        public static void FindSupplementsInRange(List<Product> list, double min, double max)
+        {
+            var found = list.OfType<Dobavki>().Where(s => s.Price >= min && s.Price <= max);
+            foreach (var s in found)
+                s.Display();
+        }
+    }
+}
+
+namespace SportsShop.Utils
+{
+    public static class InventoryLoader
+    {
+        public static List<Product> Load(string path)
+        {
+            var json = File.ReadAllText(path);
+            var items = JsonSerializer.Deserialize<List<JsonElement>>(json);
+            var list = new List<Product>();
+
+            foreach (var item in items)
+            {
+                var type = item.GetProperty("ProductType").GetString();
+                switch (type)
+                {
+                    case "Equipment":
+                        list.Add(JsonSerializer.Deserialize<Equipment>(item.GetRawText()));
+                        break;
+                    case "Dobavki":
+                        list.Add(JsonSerializer.Deserialize<Dobavki>(item.GetRawText()));
+                        break;
+                }
+            }
+            return list;
+        }
+    }
+}
