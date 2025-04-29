@@ -1,0 +1,167 @@
+//lab 5
+
+using System;
+using System.Collections.Generic;
+
+abstract class Animal
+{
+    public int Age { get; set; }
+
+    public Animal(int age)
+    {
+        Age = age;
+    }
+
+    public abstract void MakeSound();
+    public abstract double MoveSpeed();
+}
+
+abstract class Bird : Animal
+{
+    public Bird(int age) : base(age) { }
+
+    public abstract double MaxFlightHeight();
+}
+
+class Owl : Bird
+{
+    public Owl(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Сова: Ух-ух!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 40.0; // км/год
+    }
+
+    public override double MaxFlightHeight()
+    {
+        return 3000; // метри
+    }
+}
+
+class Sparrow : Bird
+{
+    public Sparrow(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Горобець: Чик-чирик!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 20.0;
+    }
+
+    public override double MaxFlightHeight()
+    {
+        return 1500;
+    }
+}
+
+class Pigeon : Bird
+{
+    public Pigeon(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Голуб: Гур-гур!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 60.0;
+    }
+
+    public override double MaxFlightHeight()
+    {
+        return 2000;
+    }
+}
+
+
+class Ostrich : Bird
+{
+    public Ostrich(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Страус: Бу-бух!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 70.0;
+    }
+
+    public override double MaxFlightHeight()
+    {
+        return 0; 
+    }
+}
+
+class Dog : Animal
+{
+    public Dog(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Собака: Гав-гав!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 45.0;
+    }
+}
+
+class Cat : Animal
+{
+    public Cat(int age) : base(age) { }
+
+    public override void MakeSound()
+    {
+        Console.WriteLine("Кіт: Мяу!");
+    }
+
+    public override double MoveSpeed()
+    {
+        return 30.0;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<Animal> animals = new List<Animal>()
+        {
+            new Owl(5),
+            new Sparrow(2),
+            new Pigeon(3),
+            new Ostrich(7),
+            new Dog(4),
+            new Cat(3)
+        };
+
+        foreach (var animal in animals)
+        {
+            animal.MakeSound();
+            Console.WriteLine($"швидкість пересування: {animal.MoveSpeed()} км/год\n");
+        }
+
+        Console.WriteLine("максимальна висота польоту птахів:");
+        foreach (var animal in animals)
+        {
+            if (animal is Bird bird)
+            {
+                Console.WriteLine($"{bird.GetType().Name}: {bird.MaxFlightHeight()} м");
+            }
+        }
+    }
+}
+
